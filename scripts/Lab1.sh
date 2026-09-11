@@ -15,7 +15,7 @@ read SENTENCE
 echo -e "${GREEN}\nEnter the banch name of your choice: ${RESET}"
 read BRANCHNAME
 
-START_DIR="$(dirname "$PWD")/Labs/Lab1"
+START_DIR="$(dirname "$(cd "$(dirname "$0")" && pwd)")/Labs/Lab1"
 
 mkdir -p "$START_DIR"
 
