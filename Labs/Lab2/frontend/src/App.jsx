@@ -1,83 +1,20 @@
-import {
-    Routes,
-    Route,
-    Navigate
-} from "react-router-dom";
+import { useState } from 'react'
+import heroImg from './assets/hero.png'
+import reactLogo from './assets/react.svg'
+import viteLogo from './assets/vite.svg'
+import './App.css'
 
-import Navbar from "./components/Navbar";
+function App() {
+  const [count, setCount] = useState(0)
 
-import ProtectedRoute
-    from "./components/ProtectedRoute";
+  return (
+    <>
+      <h1>Welcome to My App</h1>
+      <p>This is a simple React frontend connected to my backend.</p>
 
-import Home from "./pages/Home";
-import Login from "./pages/Login";
-import Register from "./pages/Register";
-import Books from "./pages/Books";
-import NotFound from "./pages/NotFound";
+      <button>Get Data</button>
+    </>
+  )
+}
 
-
-const App = () => {
-
-    return (
-
-        <>
-
-            <Navbar />
-
-            <Routes>
-
-                {/* HOME */}
-
-                <Route
-                    path="/"
-                    element={<Home />}
-                />
-
-
-                {/* AUTHENTICATION */}
-
-                <Route
-                    path="/login"
-                    element={<Login />}
-                />
-
-                <Route
-                    path="/register"
-                    element={<Register />}
-                />
-
-
-                {/* PROTECTED BOOK PAGE */}
-
-                <Route
-
-                    path="/books"
-
-                    element={
-
-                        <ProtectedRoute>
-
-                            <Books />
-
-                        </ProtectedRoute>
-
-                    }
-
-                />
-
-
-                {/* 404 */}
-
-                <Route
-                    path="*"
-                    element={<NotFound />}
-                />
-
-            </Routes>
-
-        </>
-
-    );
-};
-
-export default App;
+export default App
