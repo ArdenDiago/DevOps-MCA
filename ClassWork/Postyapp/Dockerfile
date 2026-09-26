@@ -3,4 +3,4 @@ WORKDIR /app
 COPY package*.json ./
 RUN npm ci
 COPY . .
-CMD ["node", "server.js"]
+CMD ["node", "src/server.js"]
