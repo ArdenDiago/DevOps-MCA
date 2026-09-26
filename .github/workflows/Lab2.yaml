@@ -11,7 +11,7 @@ on:
 
 # Required permissions for GitHub Pages
 permissions:
-  contents: read
+  contents: write
   pages: write
   id-token: write
 
@@ -78,35 +78,24 @@ jobs:
       - name: Build Frontend
         run: npm run build
 
-      # Create the directory structure that will be deployed
-      - name: Prepare GitHub Pages
+      - name: Commit and Push to docs folder
         run: |
-          mkdir -p ../../pages/Labs/Lab2
-          cp -r dist/* ../../pages/Labs/Lab2/
-
-      - name: Upload Pages Artifact
-        uses: actions/upload-pages-artifact@v3
-        with:
-          path: pages/
-
-
-  # ==========================================
-  # 3. DEPLOY TO GITHUB PAGES
-  # ==========================================
-  deploy:
-    name: Deploy to GitHub Pages
-    needs: build-frontend
-    runs-on: ubuntu-latest
-
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-
-    steps:
-
-      - name: Deploy Pages
-        id: deployment
-        uses: actions/deploy-pages@v4
+          # Go back to the root of the repository
+          cd ../../../
+          
+          # Clean old docs and copy the new build
+          rm -rf docs/*
+          mkdir -p docs
+          cp -r Labs/Lab2/frontend/dist/* docs/
+          
+          # Configure Git
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          
+          # Add, commit, and push
+          git add docs/
+          git commit -m "chore: deploy Lab2 build to docs folder [skip ci]" || echo "No changes to commit"
+          git push
 
 
   # ==========================================
@@ -114,7 +103,7 @@ jobs:
   # ==========================================
   done-message:
     name: Success
-    needs: deploy
+    needs: build-frontend
     runs-on: ubuntu-latest
 
     steps:
@@ -123,7 +112,7 @@ jobs:
         run: |
           echo "Hello user ${{ github.actor }}"
           echo "Your Lab2 tests and build completed successfully."
-          echo "Your Lab2 has been deployed to GitHub Pages."
+          echo "Your Lab2 has been built and saved to the docs folder."
 
 
   # ==========================================
@@ -134,7 +123,6 @@ jobs:
     needs:
       - test-backend
       - build-frontend
-      - deploy
 
     if: ${{ failure() }}
     runs-on: ubuntu-latest
