@@ -1,0 +1,180 @@
+@import url("https://fonts.googleapis.com/css?family=Caveat:400,700|Gochi+Hand");
+.alignDiv {
+  display: flex;
+  justify-content: center;
+  z-index: 1;
+}
+
+.alignDiv >h1 {
+  font-size: 20em;
+  font-family: "Caveat", cursive;
+  display: inline;
+  position: absolute;
+  left: 200px;
+  top: -690px;
+  /* top: 400px; */
+  padding-top: 100vh;
+}
+.increse24{
+  display: inline;
+  top: -70px;
+  font-size: 400px;
+}
+
+.allRepeat,
+.sets,
+.bliking,
+span,
+.myspan {
+  display: block;
+  float: left;
+  animation: animate 2.25s linear infinite;
+  margin: 0 5px;
+  padding: 0;
+  position: relative;
+  color: #d4d4d4;
+}
+
+.myspan {
+  color: #fccaff; 
+  text-shadow: 0 0 5px #ffa500, 0 0 15px #ffa500, 0 0 20px #ffa500, 0 0 40px #ffa500, 0 0 60px #ff0000, 0 0 10px #ff8d00, 0 0 98px #ff0000;
+    color: #fff6a9;
+    text-align: center;
+    animation: blink 12s infinite;
+    -webkit-animation: blink 12s infinite;
+}
+
+@-webkit-keyframes blink {
+  20%,
+  24%,
+  55% {
+    color: #111;
+    text-shadow: none;
+  }
+
+  0%,
+  19%,
+  21%,
+  23%,
+  25%,
+  54%,
+  56%,
+  100% {
+/*     color: #fccaff;
+    text-shadow: 0 0 5px #f562ff, 0 0 15px #f562ff, 0 0 25px #f562ff,
+      0 0 20px #f562ff, 0 0 30px #890092, 0 0 80px #890092, 0 0 80px #890092; */
+  text-shadow: 0 0 5px #ffa500, 0 0 15px #ffa500, 0 0 20px #ffa500, 0 0 40px #ffa500, 0 0 60px #ff0000, 0 0 10px #ff8d00, 0 0 98px #ff0000;
+    color: #fff6a9;
+  }
+}
+
+@keyframes blink {
+  20%,
+  24%,
+  55% {
+    color: #111;
+    text-shadow: none;
+  }
+
+  0%,
+  19%,
+  21%,
+  23%,
+  25%,
+  54%,
+  56%,
+  100% {
+/*     color: #fccaff;
+    text-shadow: 0 0 5px #f562ff, 0 0 15px #f562ff, 0 0 25px #f562ff,
+      0 0 20px #f562ff, 0 0 30px #890092, 0 0 80px #890092, 0 0 80px #890092; */
+  text-shadow: 0 0 5px #ffa500, 0 0 15px #ffa500, 0 0 20px #ffa500, 0 0 40px #ffa500, 0 0 60px #ff0000, 0 0 10px #ff8d00, 0 0 98px #ff0000;
+    color: #fff6a9;
+  }
+}
+
+.allRepeat span:nth-child(1) {
+  animation-delay: 0s;
+}
+.allRepeat span:nth-child(2) {
+  animation-delay: 0.25s;
+}
+.allRepeat span:nth-child(2) {
+  animation-delay: 0.5s;
+}
+.allRepeat span:nth-child(3) {
+  animation-delay: 0.75s;
+}
+.allRepeat span:nth-child(4) {
+  animation-delay: 1s;
+}
+.allRepeat span:nth-child(5) {
+  animation-delay: 1.25s;
+}
+.allRepeat span:nth-child(6) {
+  animation-delay: 1.5s;
+}
+
+.sets {
+  -webkit-animation: flicker 2s infinite;
+}
+
+@-webkit-keyframes flicker {
+  0% {
+    opacity: 0;
+  }
+  9% {
+    opacity: 0;
+  }
+  10% {
+    opacity: 0.5;
+  }
+  13% {
+    opacity: 0;
+  }
+  20% {
+    opacity: 0.5;
+  }
+  25% {
+    opacity: 1;
+  }
+}
+
+.bliking {
+  animation: animate 0.005s linear infinite;
+}
+
+.bliking span:nth-child(1) {
+  animation-delay: 0.005s;
+}
+.bliking span:nth-child(3) {
+  animation-delay: 0.005s;
+}
+.bliking span:nth-child(2) {
+  animation-delay: 0.025s;
+}
+.bliking span:nth-child(4) {
+  animation-delay: 0.015s;
+}
+.bliking span:nth-child(5) {
+  animation-delay: 0.025s;
+}
+.bliking span:nth-child(6) {
+  animation-delay: 0.02s;
+}
+
+@keyframes animate {
+  0%,
+  100% {
+    color: #ffffff;
+    filter: blur(2px);
+    text-shadow: 0 0 10px #ffa600, 0 0 20px #00ff62, 0 0 40px #00ff9d,
+      0 0 80px #00bbff, 0 0 120px #00bbff, 0 0 200px #00bbff, 0 0 300px #d400ff,
+      0 0 400px #002fff;
+  }
+  5%,
+  95% {
+    color: #797979;
+    filter: blur(0px);
+    text-shadow: none;
+  }
+}
