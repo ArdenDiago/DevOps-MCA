@@ -1,0 +1,615 @@
+@import "tailwindcss";
+
+/*
+ * CodePulse — 2026 product design system
+ * ===========================================================================
+ * One theme-aware token architecture for the landing page, authentication,
+ * and authenticated workspace: neutral zinc surfaces, hairline borders,
+ * restrained radii, inverted primary actions, and one blue interaction accent.
+ * ===========================================================================
+ */
+
+:root {
+  color-scheme: dark;
+
+  /* -- Surfaces: neutral zinc, elevation by 4% steps --------------------- */
+  --surface-canvas: #0a0a0a;
+  --surface-1: #101010;
+  --surface-2: #171717;
+  --surface-3: #1f1f1f;
+  /* Overlays blur over scrolling content; keep them nearly opaque. */
+  --surface-overlay: rgba(16, 16, 16, 0.86);
+  --surface-sunken: #060606;
+  --surface-wash: rgba(255, 255, 255, 0.05);
+
+  /* -- Ink --------------------------------------------------------------- */
+  --ink-1: #fafafa;
+  --ink-2: #a3a3a3;
+  --ink-3: #737373;
+  /* Below 4.5:1 on all surfaces — icons and placeholders only, never text. */
+  --ink-4: #525252;
+
+  /* -- Lines: hairlines do the layout work, not shadows ------------------ */
+  --line-1: rgba(255, 255, 255, 0.07);
+  --line-2: rgba(255, 255, 255, 0.12);
+  --line-3: rgba(255, 255, 255, 0.2);
+
+  /* -- Accent: one blue, interactive state only -------------------------- */
+  --accent: #3b82f6;
+  --accent-hover: #2563eb;
+  --accent-ink: #6ea0ff;
+  --accent-on: #ffffff;
+  --accent-wash: rgba(59, 130, 246, 0.12);
+  --accent-line: rgba(59, 130, 246, 0.45);
+
+  /* -- Contrast: the primary action is an inverted surface --------------- */
+  --contrast: #ededed;
+  --contrast-hover: #d4d4d4;
+  --contrast-on: #0a0a0a;
+
+  /* Provider marks are reserved for explicit connection actions only. */
+  --provider-github: #e5e5e5;
+  --provider-gitlab: #fc6d26;
+
+  /* -- Severity: the product's real palette, fixed hues ------------------ */
+  --sev-nominal: #34d399;
+  --sev-low: #34d399;
+  --sev-medium: #fbbf24;
+  --sev-high: #fb923c;
+  --sev-critical: #f87171;
+  --sev-critical-on: #ffffff;
+
+  --sev-nominal-ink: #34d399;
+  --sev-low-ink: #34d399;
+  --sev-medium-ink: #fbbf24;
+  --sev-high-ink: #fb923c;
+  --sev-critical-ink: #f87171;
+
+  --sev-nominal-wash: rgba(52, 211, 153, 0.1);
+  --sev-low-wash: rgba(52, 211, 153, 0.1);
+  --sev-medium-wash: rgba(251, 191, 36, 0.1);
+  --sev-high-wash: rgba(251, 146, 60, 0.1);
+  --sev-critical-wash: rgba(248, 113, 113, 0.1);
+
+  --sev-nominal-line: rgba(52, 211, 153, 0.32);
+  --sev-low-line: rgba(52, 211, 153, 0.32);
+  --sev-medium-line: rgba(251, 191, 36, 0.32);
+  --sev-high-line: rgba(251, 146, 60, 0.32);
+  --sev-critical-line: rgba(248, 113, 113, 0.32);
+
+  /* -- Deltas ------------------------------------------------------------ */
+  --delta-up: var(--sev-nominal);
+  --delta-down: var(--sev-critical);
+  --delta-flat: var(--ink-3);
+
+  /* -- Chart series: categorical identity, fixed assignment order -------- */
+  --series-1: #4f8ff7;
+  --series-2: #2dd4bf;
+  --series-3: #a78bfa;
+  --series-4: #fbbf24;
+  --series-5: #f472b6;
+  --series-6: #fb923c;
+
+  /* -- Risk heat ramp (ordinal, single hue) ------------------------------ */
+  --heat-1: #33272b;
+  --heat-2: #5c3740;
+  --heat-3: #854753;
+  --heat-4: #ad5a66;
+  --heat-5: #f87171;
+
+  /* -- Chart chrome ------------------------------------------------------ */
+  --chart-grid: rgba(255, 255, 255, 0.05);
+  --chart-axis: rgba(255, 255, 255, 0.12);
+
+  /* -- Elevation: borders first, shadows only for floating layers -------- */
+  --shadow-e1: 0 1px 2px rgba(0, 0, 0, 0.5);
+  --shadow-e2: 0 4px 12px rgba(0, 0, 0, 0.5);
+  --shadow-e3: 0 12px 32px rgba(0, 0, 0, 0.6);
+  --shadow-e4: 0 24px 64px rgba(0, 0, 0, 0.7);
+
+  --scrim: rgba(10, 10, 10, 0.72);
+  --backdrop: rgba(0, 0, 0, 0.6);
+
+  /* -- Radius: small, sharp, engineered ---------------------------------- */
+  --r-xs: 0.25rem;
+  --r-sm: 0.375rem;
+  --r-md: 0.5rem;
+  --r-lg: 0.75rem;
+  --r-xl: 1rem;
+
+  /* -- Motion ------------------------------------------------------------ */
+  --d-1: 120ms;
+  --d-2: 200ms;
+  --d-3: 320ms;
+  --d-4: 480ms;
+  --d-5: 720ms;
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in: cubic-bezier(0.5, 0, 1, 0.5);
+  --ease-inout: cubic-bezier(0.65, 0, 0.35, 1);
+
+  /* -- Density ----------------------------------------------------------- */
+  --pad-card: 1.25rem;
+  --pad-row: 0.75rem;
+}
+
+:root[data-density="compact"] {
+  --pad-card: 0.875rem;
+  --pad-row: 0.5rem;
+}
+
+:root[data-density="spacious"] {
+  --pad-card: 1.5rem;
+  --pad-row: 1rem;
+}
+
+/* -- Light theme: paper-white workspace, same architecture ---------------- */
+
+:root[data-theme="light"] {
+  color-scheme: light;
+
+  --surface-canvas: #fafafa;
+  --surface-1: #ffffff;
+  --surface-2: #f4f4f5;
+  --surface-3: #e7e7ea;
+  --surface-overlay: rgba(255, 255, 255, 0.88);
+  --surface-sunken: #f0f0f1;
+  --surface-wash: rgba(0, 0, 0, 0.04);
+
+  --ink-1: #0a0a0a;
+  --ink-2: #525252;
+  --ink-3: #737373;
+  --ink-4: #a3a3a3;
+
+  --line-1: rgba(0, 0, 0, 0.07);
+  --line-2: rgba(0, 0, 0, 0.11);
+  --line-3: rgba(0, 0, 0, 0.18);
+
+  --accent: #0070f3;
+  --accent-hover: #0060df;
+  --accent-ink: #0070f3;
+  --accent-on: #ffffff;
+  --accent-wash: rgba(0, 112, 243, 0.08);
+  --accent-line: rgba(0, 112, 243, 0.3);
+
+  --contrast: #0a0a0a;
+  --contrast-hover: #2b2b2b;
+  --contrast-on: #fafafa;
+
+  --provider-github: #24292f;
+  --provider-gitlab: #e24329;
+
+  --sev-nominal: #059669;
+  --sev-low: #059669;
+  --sev-medium: #b45309;
+  --sev-high: #c2410c;
+  --sev-critical: #dc2626;
+
+  --sev-nominal-ink: #047857;
+  --sev-low-ink: #047857;
+  --sev-medium-ink: #92400e;
+  --sev-high-ink: #9a3412;
+  --sev-critical-ink: #b91c1c;
+
+  --sev-nominal-wash: rgba(5, 150, 105, 0.08);
+  --sev-low-wash: rgba(5, 150, 105, 0.08);
+  --sev-medium-wash: rgba(180, 83, 9, 0.08);
+  --sev-high-wash: rgba(194, 65, 12, 0.08);
+  --sev-critical-wash: rgba(220, 38, 38, 0.08);
+
+  --sev-nominal-line: rgba(5, 150, 105, 0.26);
+  --sev-low-line: rgba(5, 150, 105, 0.26);
+  --sev-medium-line: rgba(180, 83, 9, 0.26);
+  --sev-high-line: rgba(194, 65, 12, 0.26);
+  --sev-critical-line: rgba(220, 38, 38, 0.26);
+
+  --series-1: #0070f3;
+  --series-2: #0f766e;
+  --series-3: #7c3aed;
+  --series-4: #b45309;
+  --series-5: #db2777;
+  --series-6: #ea580c;
+
+  --heat-1: #fbe3e3;
+  --heat-2: #f5c0c0;
+  --heat-3: #ec8f8f;
+  --heat-4: #dd5c5c;
+  --heat-5: #b91c1c;
+
+  --chart-grid: rgba(0, 0, 0, 0.05);
+  --chart-axis: rgba(0, 0, 0, 0.12);
+
+  --shadow-e1: 0 1px 2px rgba(0, 0, 0, 0.05);
+  --shadow-e2: 0 4px 12px rgba(0, 0, 0, 0.06);
+  --shadow-e3: 0 12px 32px rgba(0, 0, 0, 0.1);
+  --shadow-e4: 0 24px 64px rgba(0, 0, 0, 0.14);
+
+  --scrim: rgba(250, 250, 250, 0.72);
+  --backdrop: rgba(0, 0, 0, 0.32);
+}
+
+/* ==========================================================================
+   2. Tailwind bridge
+   ========================================================================== */
+
+@theme inline {
+  --color-canvas: var(--surface-canvas);
+  --color-surface-1: var(--surface-1);
+  --color-surface-2: var(--surface-2);
+  --color-surface-3: var(--surface-3);
+  --color-overlay: var(--surface-overlay);
+  --color-sunken: var(--surface-sunken);
+
+  --color-ink-1: var(--ink-1);
+  --color-ink-2: var(--ink-2);
+  --color-ink-3: var(--ink-3);
+  --color-ink-4: var(--ink-4);
+
+  --color-line-1: var(--line-1);
+  --color-line-2: var(--line-2);
+  --color-line-3: var(--line-3);
+
+  --color-accent: var(--accent);
+  --color-accent-hover: var(--accent-hover);
+  --color-accent-ink: var(--accent-ink);
+  --color-accent-on: var(--accent-on);
+  --color-accent-wash: var(--accent-wash);
+  --color-accent-line: var(--accent-line);
+
+  --color-contrast: var(--contrast);
+  --color-contrast-hover: var(--contrast-hover);
+  --color-contrast-on: var(--contrast-on);
+
+  --color-sev-nominal: var(--sev-nominal);
+  --color-sev-low: var(--sev-low);
+  --color-sev-medium: var(--sev-medium);
+  --color-sev-high: var(--sev-high);
+  --color-sev-critical: var(--sev-critical);
+
+  --color-delta-up: var(--delta-up);
+  --color-delta-down: var(--delta-down);
+  --color-delta-flat: var(--delta-flat);
+
+  --color-series-1: var(--series-1);
+  --color-series-2: var(--series-2);
+  --color-series-3: var(--series-3);
+  --color-series-4: var(--series-4);
+  --color-series-5: var(--series-5);
+  --color-series-6: var(--series-6);
+
+  /* One type system: Geist for prose/UI and Geist Mono for data. */
+  --font-sans: "Geist", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-mono: "Geist Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+
+  --text-display-1: clamp(2.75rem, 6vw, 4.25rem);
+  --text-display-1--line-height: 1.02;
+  --text-display-1--letter-spacing: -0.045em;
+
+  --text-display-2: clamp(2.25rem, 5vw, 3.25rem);
+  --text-display-2--line-height: 1.06;
+  --text-display-2--letter-spacing: -0.035em;
+
+  --text-title-1: clamp(1.5rem, 3vw, 2rem);
+  --text-title-1--line-height: 1.12;
+  --text-title-1--letter-spacing: -0.025em;
+
+  --text-title-2: clamp(1.25rem, 2.5vw, 1.5rem);
+  --text-title-2--line-height: 1.18;
+  --text-title-2--letter-spacing: -0.02em;
+
+  --text-title-3: clamp(1.0625rem, 2vw, 1.25rem);
+  --text-title-3--line-height: 1.25;
+  --text-title-3--letter-spacing: -0.015em;
+
+  --text-body-lg: 1.0625rem;
+  --text-body-lg--line-height: 1.65;
+
+  --text-body-sm: 0.8125rem;
+  --text-body-sm--line-height: 1.55;
+
+  --text-caption: 0.75rem;
+  --text-caption--line-height: 1.5;
+
+  --text-metric-xl: clamp(2.25rem, 4.5vw, 3.25rem);
+  --text-metric-xl--line-height: 1;
+  --text-metric-xl--letter-spacing: -0.04em;
+
+  --text-metric: clamp(1.5rem, 3vw, 2rem);
+  --text-metric--line-height: 1;
+  --text-metric--letter-spacing: -0.02em;
+
+  --radius-xs: var(--r-xs);
+  --radius-sm: var(--r-sm);
+  --radius-md: var(--r-md);
+  --radius-lg: var(--r-lg);
+  --radius-xl: var(--r-xl);
+
+  --ease-out: var(--ease-out);
+  --ease-in: var(--ease-in);
+  --ease-inout: var(--ease-inout);
+
+  --animate-shimmer: shimmer 2s infinite linear;
+  --animate-pulse-soft: pulse-soft 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+/* ==========================================================================
+   3. Keyframes
+   ========================================================================== */
+
+@keyframes shimmer {
+  from { background-position: -200% 0; }
+  to { background-position: 200% 0; }
+}
+
+@keyframes pulse-soft {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.65; transform: scale(0.94); }
+}
+
+@keyframes cp-fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes cp-dialog-in {
+  from { opacity: 0; transform: translateY(10px) scale(0.98); }
+  to { opacity: 1; transform: none; }
+}
+
+/* ==========================================================================
+   4. Utilities
+   ========================================================================== */
+
+@layer utilities {
+  /* Tailwind v4 spacing utilities resolve through --spacing. Scope the
+     account preference to authenticated product surfaces only. */
+  :root[data-density="compact"] .density-surface { --spacing: 0.22rem; }
+  :root[data-density="spacious"] .density-surface { --spacing: 0.28rem; }
+
+  .cp-prose { width: min(100% - 2rem, 44rem); margin-inline: auto; }
+  .cp-marketing { width: min(100% - 2rem, 76rem); margin-inline: auto; }
+  .cp-app { width: min(100% - 2rem, 92rem); margin-inline: auto; }
+  .cp-wide { width: min(100% - 2rem, 120rem); margin-inline: auto; }
+  .cp-section { padding-block: 5rem; }
+
+  @media (min-width: 640px) {
+    .cp-prose { width: min(100% - 4rem, 44rem); }
+    .cp-marketing { width: min(100% - 4rem, 76rem); }
+    .cp-app { width: min(100% - 4rem, 92rem); }
+    .cp-wide { width: min(100% - 4rem, 120rem); }
+  }
+  @media (min-width: 1024px) { .cp-section { padding-block: 7rem; } }
+
+  /* -- Product panels: flat surfaces, hairline borders, no glass --------- */
+  .panel {
+    background: var(--surface-1);
+    border: 1px solid var(--line-1);
+    border-radius: var(--r-lg);
+  }
+
+  .panel-2 {
+    background: var(--surface-2);
+    border: 1px solid var(--line-1);
+    border-radius: var(--r-md);
+  }
+
+  .panel-interactive {
+    transition: border-color var(--d-2) var(--ease-out), background var(--d-2) var(--ease-out);
+  }
+  .panel-interactive:hover {
+    border-color: var(--line-2);
+    background: var(--surface-2);
+  }
+
+  /* The only sanctioned backdrop-filter surface: floating overlays and dialogs. */
+  .scrim {
+    background: var(--scrim);
+    backdrop-filter: blur(12px) saturate(150%);
+    -webkit-backdrop-filter: blur(12px) saturate(150%);
+  }
+
+  /* -- Type -------------------------------------------------------------- */
+  .tnum { font-variant-numeric: tabular-nums; }
+
+  /* Micro-label. Named before Tailwind's text-decoration `overline` utility
+     shipped — explicitly kill the decoration it would otherwise add. */
+  .overline {
+    text-decoration-line: none;
+    font-size: 0.6875rem;
+    line-height: 1.4;
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+    font-weight: 600;
+  }
+
+  .path-truncate {
+    display: inline-block;
+    max-width: 100%;
+    direction: rtl;
+    text-align: left;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .path-truncate > bdi { direction: ltr; }
+
+  /* -- Backgrounds ------------------------------------------------------- */
+  .grid-bg {
+    background-image:
+      linear-gradient(var(--line-1) 1px, transparent 1px),
+      linear-gradient(90deg, var(--line-1) 1px, transparent 1px);
+    background-size: 56px 56px;
+    mask-image: radial-gradient(ellipse 90% 70% at 50% 0%, black 30%, transparent 75%);
+    -webkit-mask-image: radial-gradient(ellipse 90% 70% at 50% 0%, black 30%, transparent 75%);
+  }
+
+  .dot-bg {
+    background-image: radial-gradient(var(--line-2) 1px, transparent 1px);
+    background-size: 24px 24px;
+  }
+
+  .landing-hero-bg {
+    background-color: var(--surface-canvas);
+    background-image:
+      radial-gradient(circle at 82% 18%, var(--accent-wash), transparent 30rem),
+      linear-gradient(to right, color-mix(in srgb, var(--line-1) 48%, transparent) 1px, transparent 1px),
+      linear-gradient(to bottom, color-mix(in srgb, var(--line-1) 48%, transparent) 1px, transparent 1px);
+    background-size: auto, 48px 48px, 48px 48px;
+  }
+
+  /* -- Skeleton ---------------------------------------------------------- */
+  .skeleton {
+    background: linear-gradient(
+      90deg,
+      var(--surface-2) 25%,
+      var(--surface-3) 50%,
+      var(--surface-2) 75%
+    );
+    background-size: 400% 100%;
+    animation: var(--animate-shimmer);
+    border-radius: var(--r-sm);
+  }
+
+  /* -- Scroll reveal ----------------------------------------------------- */
+  .reveal {
+    opacity: 0;
+    transform: translateY(20px);
+    transition:
+      opacity var(--d-4) var(--ease-out),
+      transform var(--d-4) var(--ease-out);
+  }
+  .reveal-visible { opacity: 1; transform: none; }
+
+}
+
+/* ==========================================================================
+   5. Base — inside @layer base so component utilities always win.
+   ========================================================================== */
+
+@layer base {
+  *, *::before, *::after { box-sizing: border-box; }
+
+  html {
+    scroll-behavior: smooth;
+    background: var(--surface-canvas);
+  }
+
+  body {
+    margin: 0;
+    min-width: 320px;
+    background: var(--surface-canvas);
+    color: var(--ink-2);
+    font-family: var(--font-sans);
+    font-size: 0.9375rem;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+  }
+
+  h1, h2, h3, h4, h5, h6 { color: var(--ink-1); font-weight: 600; }
+
+  #root { min-height: 100vh; width: 100%; }
+
+  ::selection { background: var(--accent-wash); color: var(--ink-1); }
+
+  :focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+  ::-webkit-scrollbar { width: 10px; height: 10px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb {
+    background: var(--surface-3);
+    border-radius: 999px;
+    border: 2px solid var(--surface-canvas);
+  }
+  ::-webkit-scrollbar-thumb:hover { background: var(--line-3); }
+
+  [hidden] { display: none !important; }
+}
+
+/* Loading spinners and status pulses carry meaning, so they keep looping
+   even under reduced motion — decorative animation stops instead. */
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  .reveal { opacity: 1; transform: none; transition: none; }
+  *, *::before, *::after {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+  }
+  .motion-safe-loop {
+    animation-duration: 1s !important;
+    animation-iteration-count: infinite !important;
+  }
+}
+
+/* ==========================================================================
+   Print-ready repository reports
+   ========================================================================== */
+
+@media print {
+  @page {
+    size: A4;
+    margin: 14mm;
+  }
+
+  :root {
+    color-scheme: light;
+    --surface-canvas: #ffffff;
+    --surface-1: #ffffff;
+    --surface-2: #f5f5f5;
+    --surface-3: #e8e8e8;
+    --surface-sunken: #f7f7f7;
+    --ink-1: #111111;
+    --ink-2: #3f3f46;
+    --ink-3: #62626b;
+    --ink-4: #808089;
+    --line-1: rgba(0, 0, 0, 0.1);
+    --line-2: rgba(0, 0, 0, 0.16);
+    --shadow-e1: none;
+    --shadow-e2: none;
+    --shadow-e3: none;
+    --shadow-e4: none;
+  }
+
+  body,
+  .report-page {
+    background: var(--surface-canvas) !important;
+  }
+
+  .report-screen-only {
+    display: none !important;
+  }
+
+  .report-page .cp-prose {
+    width: 100%;
+    max-width: none;
+    padding: 0;
+  }
+
+  .report-header {
+    margin-bottom: 8mm;
+  }
+
+  .report-section,
+  .report-cover,
+  .report-section li,
+  .report-section tr {
+    break-inside: avoid;
+  }
+
+  .report-section,
+  .report-cover {
+    box-shadow: none !important;
+  }
+
+  .report-evidence-group > summary {
+    display: none !important;
+  }
+
+  .report-evidence-group > :not(summary) {
+    display: block !important;
+  }
+}

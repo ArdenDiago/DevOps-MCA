@@ -1,0 +1,125 @@
+@import url("https://fonts.googleapis.com/css?family=Caveat:400,700|Gochi+Hand");
+
+.welcome ul {
+  width: 90%;
+  transform: translate(0, -50%);
+  position: absolute;
+  text-align: center;
+  font-size: 20px;
+  left: 0;
+  top: 20%;
+}
+
+.welcome ul li {
+  display: inline-block;
+  position: relative;
+  text-align: center;
+  line-height: 10vw;
+  margin: 2px 0;
+  height: 10px;
+  width: 10px;
+}
+
+@media screen and (orientation: landscape) {
+  .welcome ul li {
+    line-height: 10vh;
+    margin: 1vh 0;
+    height: 10vh;
+    width: 10vh;
+  }
+}
+
+.welcome ul li:before,
+.welcome ul li:after {
+  transition: transform 0.25s ease-in-out;
+  content: attr(data-letter);
+  font-family: "Caveat", cursive;
+  font-weight: 70;
+  font-size: 10px;
+  position: absolute;
+  height: 100%;
+  width: 100%;
+  left: 0;
+  top: 0;
+}
+
+@media screen and (orientation: landscape) {
+  .welcome ul li:before,
+  .welcome ul li:after {
+    font-size: 10vh;
+  }
+}
+
+.welcome ul li[data-letter=" "] {
+  opacity: 0;
+}
+
+.welcome ul li:before {
+  transform-origin: top center;
+  transform: translate(0, 100%) rotateX(-180deg);
+  background-color: rgb(139, 211, 157);
+  z-index: 1;
+  color: white;
+}
+
+.welcome ul li:after {
+  transform: translate(0, 0) rotateX(0deg);
+  transform-origin: bottom center;
+  background-color: white;
+  z-index: 1;
+  color: black;
+}
+
+.welcome ul li:nth-of-type(10n + 1):before {
+  transition-delay: 0s;
+}
+
+.welcome ul li:nth-of-type(10n + 2):before {
+  transition-delay: 0.10s;
+}
+
+.welcome ul li:nth-of-type(10n + 3):before {
+  transition-delay: 0.15s;
+}
+
+.welcome ul li:nth-of-type(10n + 4):before {
+  transition-delay: 0.20s;
+}
+
+.welcome ul li:nth-of-type(10n + 5):before {
+  transition-delay: 0.25s;
+}
+
+.welcome ul li:nth-of-type(10n + 6):before {
+  transition-delay: 0.30s;
+}
+
+.welcome ul li:nth-of-type(10n + 7):before {
+  transition-delay: 0.35s;
+}
+
+.welcome ul li:nth-of-type(10n + 8):before {
+  transition-delay: 0.40s;
+}
+
+.welcome ul li:nth-of-type(10n + 9):before {
+  transition-delay: 0.45s;
+}
+
+.welcome ul li:nth-of-type(10n + 10):before {
+  transition-delay: 0.50s;
+}
+
+.welcome ul.active li:before {
+  transform: translate(0, 0) rotateX(0deg);
+  z-index: 2;
+}
+
+.welcome ul.active li:after {
+  transform: translate(0, -100%) rotateX(90deg);
+  z-index: 1;
+}
+
+.welcome ul.active li:after[data-letter=" "] {
+  opacity: 0;
+}

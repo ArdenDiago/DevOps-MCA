@@ -1,0 +1,17 @@
+.permission-declare, .decision {
+    display: inline;
+    color: white;
+    font-size: 60px;
+  }
+  .text-control {
+    margin-left: 2px;
+    display: inline;
+    color: #606060;
+    background-color: #606060;
+    -webkit-animation: blink 1s step-end infinite;
+    animation: blink 1s step-end infinite;  
+}
+
+input {
+  visibility: hidden;
+}
