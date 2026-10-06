@@ -1,0 +1,364 @@
+import test from 'node:test'
+import assert from 'node:assert/strict'
+import { createReadController } from '../src/features/repositories/readController.js'
+
+function createResponse() {
+  return {
+    statusCode: 200,
+    body: undefined,
+    status(code) {
+      this.statusCode = code
+      return this
+    },
+    json(payload) {
+      this.body = payload
+      return this
+    },
+  }
+}
+
+test('listRepositories responds with the reader repositories for the signed-in user', async () => {
+  let requestedUserId
+  const deps = {
+    async listRepositoriesForUser(userId) {
+      requestedUserId = userId
+      return [{ id: 'repo-1' }]
+    },
+  }
+  const { listRepositories } = createReadController(deps)
+  const request = { user: { _id: 'user-1' } }
+  const response = createResponse()
+
+  await listRepositories(request, response, () => assert.fail('next should not be called'))
+
+  assert.equal(requestedUserId, 'user-1')
+  assert.deepEqual(response.body, { repositories: [{ id: 'repo-1' }] })
+})
+
+test('getRepository returns 400 for a malformed repository id', async () => {
+  const { getRepository } = createReadController({})
+  const request = { user: { _id: 'user-1' }, params: { repositoryId: 'not-an-object-id' } }
+  const response = createResponse()
+
+  await getRepository(request, response, () => assert.fail('next should not be called'))
+
+  assert.equal(response.statusCode, 400)
+})
+
+test('getRepository returns 404 when the repository is missing or not owned', async () => {
+  const deps = { async findRepositoryForUser() { return null } }
+  const { getRepository } = createReadController(deps)
+  const request = { user: { _id: 'user-1' }, params: { repositoryId: '507f1f77bcf86cd799439011' } }
+  const response = createResponse()
+
+  await getRepository(request, response, () => assert.fail('next should not be called'))
+
+  assert.equal(response.statusCode, 404)
+})
+
+test('getRepository serializes the owned repository', async () => {
+  const deps = {
+    async findRepositoryForUser() { return { _id: 'repo-1' } },
+    serializeRepository(repository) { return { id: repository._id, serialized: true } },
+  }
+  const { getRepository } = createReadController(deps)
+  const request = { user: { _id: 'user-1' }, params: { repositoryId: '507f1f77bcf86cd799439011' } }
+  const response = createResponse()
+
+  await getRepository(request, response, () => assert.fail('next should not be called'))
+
+  assert.deepEqual(response.body, { repository: { id: 'repo-1', serialized: true } })
+})
+
+test('deleteRepository returns 404 when nothing was deleted, 200 message otherwise', async () => {
+  const deps = { async deleteRepositoryForUser(_userId, repositoryId) { return repositoryId === 'delete-me' } }
+  const { deleteRepository } = createReadController(deps)
+
+  const missingResponse = createResponse()
+  await deleteRepository(
+    { user: { _id: 'user-1' }, params: { repositoryId: '507f1f77bcf86cd799439011' } },
+    missingResponse,
+    () => assert.fail('next should not be called'),
+  )
+  assert.equal(missingResponse.statusCode, 404)
+
+  deps.deleteRepositoryForUser = async () => true
+  const okResponse = createResponse()
+  await deleteRepository(
+    { user: { _id: 'user-1' }, params: { repositoryId: '507f1f77bcf86cd799439011' } },
+    okResponse,
+    () => assert.fail('next should not be called'),
+  )
+  assert.deepEqual(okResponse.body, { message: 'Repository deleted.' })
+})
+
+test('deleteRepository returns 409 while a repository scan is active', async () => {
+  const { deleteRepository } = createReadController({ async deleteRepositoryForUser() { return 'active' } })
+  const response = createResponse()
+
+  await deleteRepository(
+    { user: { _id: 'user-1' }, params: { repositoryId: '507f1f77bcf86cd799439011' } },
+    response,
+    () => assert.fail('next should not be called'),
+  )
+
+  assert.equal(response.statusCode, 409)
+})
+
+test('updateRepositorySchedule rejects a malformed repository id', async () => {
+  const { updateRepositorySchedule } = createReadController({})
+  const request = { user: { _id: 'user-1' }, params: { repositoryId: 'not-an-object-id' }, body: { intervalHours: 24 } }
+  const response = createResponse()
+
+  await updateRepositorySchedule(request, response, () => assert.fail('next should not be called'))
+
+  assert.equal(response.statusCode, 400)
+})
+
+test('updateRepositorySchedule rejects intervalHours outside the configured bounds', async () => {
+  const { updateRepositorySchedule } = createReadController({})
+  const request = { user: { _id: 'user-1' }, params: { repositoryId: '507f1f77bcf86cd799439011' }, body: { intervalHours: 0 } }
+  const response = createResponse()
+
+  await updateRepositorySchedule(request, response, () => assert.fail('next should not be called'))
+
+  assert.equal(response.statusCode, 400)
+})
+
+test('updateRepositorySchedule returns 404 when the repository is not owned', async () => {
+  const deps = { async setRepositoryScanSchedule() { return null } }
+  const { updateRepositorySchedule } = createReadController(deps)
+  const request = { user: { _id: 'user-1' }, params: { repositoryId: '507f1f77bcf86cd799439011' }, body: { intervalHours: 24 } }
+  const response = createResponse()
+
+  await updateRepositorySchedule(request, response, () => assert.fail('next should not be called'))
+
+  assert.equal(response.statusCode, 404)
+})
+
+test('updateRepositorySchedule sets a schedule and treats null as disabling it', async () => {
+  let capturedIntervalHours
+  const deps = {
+    async setRepositoryScanSchedule(_userId, _repositoryId, intervalHours) {
+      capturedIntervalHours = intervalHours
+      return { id: 'repo-1', scanIntervalHours: intervalHours, nextScanAt: intervalHours ? '2026-08-20T00:00:00.000Z' : null }
+    },
+  }
+  const { updateRepositorySchedule } = createReadController(deps)
+  const requestBase = { user: { _id: 'user-1' }, params: { repositoryId: '507f1f77bcf86cd799439011' } }
+
+  const setResponse = createResponse()
+  await updateRepositorySchedule({ ...requestBase, body: { intervalHours: 24 } }, setResponse, () => assert.fail())
+  assert.equal(capturedIntervalHours, 24)
+  assert.deepEqual(setResponse.body, { repository: { id: 'repo-1', scanIntervalHours: 24, nextScanAt: '2026-08-20T00:00:00.000Z' } })
+
+  const clearResponse = createResponse()
+  await updateRepositorySchedule({ ...requestBase, body: { intervalHours: null } }, clearResponse, () => assert.fail())
+  assert.equal(capturedIntervalHours, null)
+
+  const omittedResponse = createResponse()
+  await updateRepositorySchedule({ ...requestBase, body: {} }, omittedResponse, () => assert.fail())
+  assert.equal(capturedIntervalHours, null)
+})
+
+test('updateRepositorySchedule enables a GitHub push trigger for an owned repository', async () => {
+  let activationInput
+  let scheduleInput
+  const deps = {
+    async findRepositoryForUser() {
+      return { _id: 'repo-1', repo_full_name: 'owner/demo' }
+    },
+    async enableGitHubPushScan(input) {
+      activationInput = input
+      return 123
+    },
+    async setRepositoryScanSchedule(...args) {
+      scheduleInput = args
+      return { id: 'repo-1', scanTrigger: 'github_push', scanIntervalHours: null, nextScanAt: null }
+    },
+  }
+  const { updateRepositorySchedule } = createReadController(deps)
+  const response = createResponse()
+
+  await updateRepositorySchedule(
+    { user: { _id: 'user-1' }, params: { repositoryId: '507f1f77bcf86cd799439011' }, body: { trigger: 'github_push' } },
+    response,
+    () => assert.fail('next should not be called'),
+  )
+
+  assert.equal(activationInput.userId, 'user-1')
+  assert.equal(activationInput.repository.repo_full_name, 'owner/demo')
+  assert.deepEqual(scheduleInput.slice(2), [null, { trigger: 'github_push', githubWebhookId: 123 }])
+  assert.equal(response.body.repository.scanTrigger, 'github_push')
+})
+
+test('getRepositoryFiles passes ownership check and pagination through to the reader', async () => {
+  let receivedArgs
+  const deps = {
+    async findRepositoryForUser() { return { _id: 'repo-1' } },
+    async listRepoFilesForRepository(repositoryId, options) {
+      receivedArgs = { repositoryId, options }
+      return { items: [], total: 0, limit: 50, skip: 0 }
+    },
+  }
+  const { getRepositoryFiles } = createReadController(deps)
+  const request = {
+    user: { _id: 'user-1' },
+    params: { repositoryId: '507f1f77bcf86cd799439011' },
+    query: { limit: '10', skip: '5' },
+  }
+  const response = createResponse()
+
+  await getRepositoryFiles(request, response, () => assert.fail('next should not be called'))
+
+  assert.equal(receivedArgs.repositoryId, 'repo-1')
+  assert.deepEqual(receivedArgs.options, { limit: '10', skip: '5' })
+  assert.deepEqual(response.body, { items: [], total: 0, limit: 50, skip: 0 })
+})
+
+test('getRepositoryFiles returns 404 for a repository the user does not own', async () => {
+  const deps = { async findRepositoryForUser() { return null } }
+  const { getRepositoryFiles } = createReadController(deps)
+  const request = { user: { _id: 'user-1' }, params: { repositoryId: '507f1f77bcf86cd799439011' }, query: {} }
+  const response = createResponse()
+
+  await getRepositoryFiles(request, response, () => assert.fail('next should not be called'))
+
+  assert.equal(response.statusCode, 404)
+})
+
+test('getRepositoryTree validates the path and returns one owned directory level', async () => {
+  let received
+  const deps = {
+    async findRepositoryForUser() { return { _id: 'repo-1' } },
+    async getRepositoryTreeForRepository(repositoryId, path) {
+      received = { repositoryId, path }
+      return { path, entries: [{ path: 'src', name: 'src', type: 'directory' }], limit: 500, truncated: false }
+    },
+  }
+  const { getRepositoryTree } = createReadController(deps)
+  const request = {
+    user: { _id: 'user-1' },
+    params: { repositoryId: '507f1f77bcf86cd799439011' },
+    query: { path: 'src\\components' },
+  }
+  const response = createResponse()
+
+  await getRepositoryTree(request, response, () => assert.fail('next should not be called'))
+
+  assert.deepEqual(received, { repositoryId: 'repo-1', path: 'src/components' })
+  assert.equal(response.body.entries[0].type, 'directory')
+
+  const invalidResponse = createResponse()
+  await getRepositoryTree({ ...request, query: { path: '../secrets' } }, invalidResponse, () => assert.fail('next should not be called'))
+  assert.equal(invalidResponse.statusCode, 400)
+})
+
+test('getRepositoryCommits, getRepositoryDependencies, and getRepositoryDocumentation delegate to the matching reader function', async () => {
+  const deps = {
+    async findRepositoryForUser() { return { _id: 'repo-1' } },
+    async listCommitsForRepository() { return { items: ['commit'] } },
+    async listDependenciesForRepository() { return { items: ['dependency'] } },
+    async listDocumentationForRepository() { return { items: ['doc'] } },
+  }
+  const { getRepositoryCommits, getRepositoryDependencies, getRepositoryDocumentation } = createReadController(deps)
+  const request = { user: { _id: 'user-1' }, params: { repositoryId: '507f1f77bcf86cd799439011' }, query: {} }
+
+  const commitsResponse = createResponse()
+  await getRepositoryCommits(request, commitsResponse, () => assert.fail('next should not be called'))
+  assert.deepEqual(commitsResponse.body, { items: ['commit'] })
+
+  const dependenciesResponse = createResponse()
+  await getRepositoryDependencies(request, dependenciesResponse, () => assert.fail('next should not be called'))
+  assert.deepEqual(dependenciesResponse.body, { items: ['dependency'] })
+
+  const documentationResponse = createResponse()
+  await getRepositoryDocumentation(request, documentationResponse, () => assert.fail('next should not be called'))
+  assert.deepEqual(documentationResponse.body, { items: ['doc'] })
+})
+
+test('structured analysis reads delegate only after ownership is confirmed', async () => {
+  const deps = {
+    async findRepositoryForUser() { return { _id: 'repo-1' } },
+    async getCodeAnalysisForRepository() { return { summary: { codeFiles: 2 }, files: { items: [] }, dependencies: { items: [] } } },
+    async getDocumentationAnalysisForRepository() { return { summary: { totalDocuments: 1 }, documents: { items: [] } } },
+  }
+  const { getRepositoryCodeAnalysis, getRepositoryDocumentationAnalysis } = createReadController(deps)
+  const request = { user: { _id: 'user-1' }, params: { repositoryId: '507f1f77bcf86cd799439011' }, query: {} }
+
+  const codeResponse = createResponse()
+  await getRepositoryCodeAnalysis(request, codeResponse, () => assert.fail('next should not be called'))
+  assert.equal(codeResponse.body.summary.codeFiles, 2)
+
+  const documentationResponse = createResponse()
+  await getRepositoryDocumentationAnalysis(request, documentationResponse, () => assert.fail('next should not be called'))
+  assert.equal(documentationResponse.body.summary.totalDocuments, 1)
+})
+
+test('getRepositoryContributors aggregates commits fetched for the owned repository', async () => {
+  const deps = {
+    async findRepositoryForUser() { return { _id: 'repo-1' } },
+    async listAllCommitsForRepository() {
+      return [
+        { author: 'Ada', author_email: 'ada@example.com', commit_date: '2026-07-01T00:00:00.000Z' },
+        { author: 'Ada', author_email: 'ada@example.com', commit_date: '2026-07-02T00:00:00.000Z' },
+      ]
+    },
+  }
+  const { getRepositoryContributors } = createReadController(deps)
+  const request = { user: { _id: 'user-1' }, params: { repositoryId: '507f1f77bcf86cd799439011' } }
+  const response = createResponse()
+
+  await getRepositoryContributors(request, response, () => assert.fail('next should not be called'))
+
+  assert.equal(response.body.contributors.length, 1)
+  assert.equal(response.body.contributors[0].commitCount, 2)
+})
+
+test('getRepositoryManifest fetches manifests using the owned repository full name and branch', async () => {
+  let receivedArgs
+  const deps = {
+    async findRepositoryForUser() { return { _id: 'repo-1', repo_full_name: 'owner/demo', default_branch: 'main' } },
+    async fetchRepositoryManifests(args) {
+      receivedArgs = args
+      return [{ path: 'package.json', type: 'npm', dependencies: [] }]
+    },
+  }
+  const { getRepositoryManifest } = createReadController(deps)
+  const request = { user: { _id: 'user-1' }, params: { repositoryId: '507f1f77bcf86cd799439011' } }
+  const response = createResponse()
+
+  await getRepositoryManifest(request, response, () => assert.fail('next should not be called'))
+
+  assert.deepEqual(receivedArgs, { repoFullName: 'owner/demo', defaultBranch: 'main' })
+  assert.deepEqual(response.body, { manifests: [{ path: 'package.json', type: 'npm', dependencies: [] }] })
+})
+
+test('getRepositoryManifest returns 404 for a repository the user does not own', async () => {
+  const deps = { async findRepositoryForUser() { return null } }
+  const { getRepositoryManifest } = createReadController(deps)
+  const request = { user: { _id: 'user-1' }, params: { repositoryId: '507f1f77bcf86cd799439011' } }
+  const response = createResponse()
+
+  await getRepositoryManifest(request, response, () => assert.fail('next should not be called'))
+
+  assert.equal(response.statusCode, 404)
+})
+
+test('controller handlers forward thrown errors to next()', async () => {
+  const deps = {
+    async listRepositoriesForUser() {
+      throw new Error('boom')
+    },
+  }
+  const { listRepositories } = createReadController(deps)
+  const request = { user: { _id: 'user-1' } }
+  const response = createResponse()
+
+  let caughtError
+  await listRepositories(request, response, error => {
+    caughtError = error
+  })
+
+  assert.equal(caughtError.message, 'boom')
+})

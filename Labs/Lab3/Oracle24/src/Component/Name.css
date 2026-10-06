@@ -1,0 +1,81 @@
+@import url("https://fonts.cdnfonts.com/css/cascadia-code");
+@import url('https://fonts.googleapis.com/css2?family=Ubuntu:ital,wght@0,300;0,400;0,500;0,700;1,300;1,400;1,500;1,700&display=swap');
+
+.Name,
+.ls {
+  /* display: block; */
+  /* top: 20px; */
+  color: white;
+  margin: auto;
+  font-family: "Ubuntu", sans-serif;
+  text-align: left;
+  font-size: 60px;
+}
+.ls {
+  padding-right: 50px;
+  font-size: 50px;
+  padding-left: 200px;
+}
+.background-width {
+  width: 100%;
+  overflow: scroll; 
+}
+.header-name {
+  display: grid;
+  grid-template-columns: auto auto auto;
+  height: 50px;
+  top: -100px;
+  color: white;
+  align-items: center;
+  padding-bottom: 90px;
+}
+.header-command-name {
+  font-size: 30px;
+}
+.header-command-name-left {
+  padding-left: 10px;
+}
+.header-command-name-right { 
+  padding-right: 20px;
+}
+.left {
+  justify-self: right;
+  padding-right: 20px;
+}
+
+/* my */
+.text-control-parent {
+    display: inline;
+    padding-left: 5px;
+}
+.text-control {
+    display: inline;
+    color: #606060;
+    background-color: #606060;
+    -webkit-animation: blink 1s step-end infinite;
+    animation: blink 1s step-end infinite;  
+}
+
+@-webkit-keyframes blink {
+  0% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+@keyframes blink {
+  0% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
