@@ -1,0 +1,44 @@
+apiVersion: apps/v1
+
+kind: Deployment
+
+metadata:
+  name: lab5
+  labels:
+    name: lab5
+
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      name: lab5
+
+  template:
+    metadata:
+      labels:
+        name: lab5
+    spec:
+      containers:
+        - name: lab5
+          image: excalidraw/excalidraw
+          ports:
+            - containerPort: 80
+
+---
+
+apiVersion: v1
+
+kind: Service
+
+metadata:
+  name: lab5-service
+
+spec:
+  type: NodePort
+  selector:
+    name: lab5
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80
+      nodePort: 30080
