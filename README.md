@@ -7,6 +7,6 @@ Welcome to the DevOps MCA repository! This repository contains classwork, labs, 
 - **Arden Diago** - `2547112`
 - **Arjit Singhal** - `2547113`
 - **Arnav Narula** - `2547115`
-- **Darshan** - 2547119
+- **Darshan** - `2547119`
 
 
